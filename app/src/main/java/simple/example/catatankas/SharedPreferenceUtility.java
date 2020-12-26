@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import simple.example.catatankas.model.Transaksi;
+import simple.example.catatankas.entity.transaksi.Transaksi;
 
 public class SharedPreferenceUtility {
 
@@ -40,71 +40,6 @@ public class SharedPreferenceUtility {
         Log.d("SH PREF","Change user name to"+userName);
         getSharedPref(ctx).edit().putString(USER_NAME_KEY,userName).apply();
     }
-    /*
-        Ambil data transaksi dari Shared Preference
-        Perhatikan bahwa data disimpan dalam format JSON String
-     */
-    public static List<Transaksi> getAllTransaksi(Context ctx) {
-        String jsonString = getSharedPref(ctx).getString(TRANS_KEY, null);
-        List<Transaksi> trs = new ArrayList<Transaksi>();
-        if (jsonString != null) {
-            Log.d("SH PREF","json string is:"+jsonString);
-            try {
-                JSONArray jsonArray = new JSONArray(jsonString);
-                for (int i=0;i<jsonArray.length();i++) {
-                    JSONObject obj = jsonArray.getJSONObject(i);
-                    trs.add(Transaksi.fromJSONObject(obj));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        Collections.sort(trs,(transaksi, t1) -> {
-            return transaksi.getTanggal().compareTo(t1.getTanggal());
-        }); // urutkan transaksi berdasarkan tanggal
-        return trs;
-    }
-    /*
-        Simpan data transaksi ke Shared Preference
-        Perhatikan bahwa data disimpan dalam format JSON String
-     */
-    private static void saveAllTransaksi(Context ctx, List<Transaksi> trs) {
-        List<JSONObject> jsonTrs = new ArrayList<JSONObject>();
-        JSONArray jsonArr = new JSONArray();
-        for (Transaksi tr : trs) {
-            jsonArr.put(tr.toJSONObject());
-        }
-        getSharedPref(ctx).edit().putString(TRANS_KEY,jsonArr.toString()).apply();
-    }
 
-    /*
-        Tambah data transaksi baru ke Shared Preference
-     */
-    public static void addTransaksi(Context ctx, Transaksi tr) {
-        List<Transaksi> trs = getAllTransaksi(ctx);
-        trs.add(tr);
-        saveAllTransaksi(ctx,trs);
-    }
-
-    public static void editTransaksi(Context ctx, Transaksi tr) {
-        List<Transaksi> trs = getAllTransaksi(ctx);
-        for (Transaksi tre:trs) {
-            if (tr.getId().equals(tre.getId())) {
-                trs.remove(tre);
-                trs.add(tr);
-            }
-        }
-        saveAllTransaksi(ctx,trs);
-    }
-
-    public static void deleteTransaksi(Context ctx, String id) {
-        List<Transaksi> trs = getAllTransaksi(ctx);
-        for (Transaksi tr:trs) {
-            if (tr.getId().equals(id)) {
-                trs.remove(tr);
-            }
-        }
-        saveAllTransaksi(ctx,trs);
-    }
 
 }

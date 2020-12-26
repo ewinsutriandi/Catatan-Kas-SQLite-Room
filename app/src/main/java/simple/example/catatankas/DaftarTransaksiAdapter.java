@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-import simple.example.catatankas.model.Transaksi;
+import simple.example.catatankas.entity.transaksi.Transaksi;
 
 public class DaftarTransaksiAdapter extends ArrayAdapter<Transaksi> {
     Context context;

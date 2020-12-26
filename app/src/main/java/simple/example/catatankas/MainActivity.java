@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -17,9 +16,11 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import simple.example.catatankas.model.Transaksi;
+import simple.example.catatankas.entity.transaksi.Transaksi;
+import simple.example.catatankas.entity.transaksi.TransaksiViewModel;
 
 public class MainActivity extends AppCompatActivity {
     FloatingActionButton btnTambahTransaksi;
@@ -27,15 +28,53 @@ public class MainActivity extends AppCompatActivity {
     ListView lvDaftarTransaksi;
     TextView txNoData, txUsername, txSaldo;
     DaftarTransaksiAdapter adapter;
-    List<Transaksi> daftarTransaksi;
+    List<Transaksi> daftarTransaksi = new ArrayList<Transaksi>();
+    TransaksiViewModel transaksiViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         inisialisasiView();
-        loadDataTransaksi();
+        setupViewModel();
         setupListview();
+    }
+
+    private void setupViewModel() {
+        Log.d("MAIN","Setup view model");
+        transaksiViewModel = new TransaksiViewModel(getApplication());
+        // monitor perubahan data
+        transaksiViewModel.getTransaksiList().observe(this,transaksiList -> {
+            // update daftar dan saldo bila terjadi perubahan
+            daftarTransaksi = transaksiList;
+            updateDaftarTransaksi();
+            updateSaldo();
+        });
+    }
+
+    private void updateDaftarTransaksi() {
+        adapter.clear();
+        adapter.addAll(daftarTransaksi);
+    }
+
+    private void updateSaldo() {
+        Log.d("MAIN","Update Saldo");
+        double saldo = 0;
+        if (daftarTransaksi.size()>0) {
+            txNoData.setVisibility(View.GONE);
+            // hitung saldo
+            for (Transaksi tr:daftarTransaksi) {
+                //Log.d("MAIN","TR:"+tr.toJSONObject().toString());
+                if (tr.getJenis().equals(Transaksi.DEBIT)) {
+                    saldo -= tr.getNilai();
+                } else {
+                    saldo += tr.getNilai();
+                }
+            }
+        } else {
+            txNoData.setVisibility(View.VISIBLE);
+        }
+        txSaldo.setText(GenericUtility.formatUang(saldo));
     }
 
     private void inisialisasiView() {
@@ -55,36 +94,10 @@ public class MainActivity extends AppCompatActivity {
         lvDaftarTransaksi.setAdapter(adapter);
     }
 
-    private void loadDataTransaksi() {
-        daftarTransaksi = SharedPreferenceUtility.getAllTransaksi(this);
-        double saldo = 0;
-        if (daftarTransaksi.size()>0) {
-            txNoData.setVisibility(View.GONE);
-            // hitung saldo
-            for (Transaksi tr:daftarTransaksi) {
-                Log.d("MAIN","TR:"+tr.toJSONObject().toString());
-                if (tr.getJenis().equals(Transaksi.DEBIT)) {
-                    saldo -= tr.getNilai();
-                } else {
-                    saldo += tr.getNilai();
-                }
-            }
-
-        } else {
-            txNoData.setVisibility(View.VISIBLE);
-        }
-        txSaldo.setText(GenericUtility.formatUang(saldo));
-    }
-
-    private void refreshListView() {
-        adapter.clear();
-        loadDataTransaksi();
-        adapter.addAll(daftarTransaksi);
-    }
 
     private void bukaFormTambahTransaksi() {
         Intent intent = new Intent(this, FormTransaksiActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent,2);
     }
 
     private void changeUserName() {
@@ -110,11 +123,5 @@ public class MainActivity extends AppCompatActivity {
         });
         builder.show();
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        refreshListView();
     }
 }

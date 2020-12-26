@@ -1,32 +1,38 @@
-package simple.example.catatankas.model;
+package simple.example.catatankas.entity.transaksi;
+
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
+import java.io.Serializable;
 import java.util.Date;
-import java.util.UUID;
 
+import simple.example.catatankas.TimeConverter;
 
-public class Transaksi {
+@Entity
+public class Transaksi implements Serializable {
     public static final String DEBIT="DEBIT";
     public static final String KREDIT="KREDIT";
-    private String id;
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+    @TypeConverters({TimeConverter.class})
     private Date tanggal;
     private String deskripsi;
     private double nilai;
     private String jenis;
 
     public Transaksi() {
-        this.id = UUID.randomUUID().toString();
         this.tanggal = new Date();
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -65,7 +71,7 @@ public class Transaksi {
     public static Transaksi fromJSONObject(JSONObject obj) {
         Transaksi tr = new Transaksi();
         try {
-            tr.setId(obj.getString("id"));
+            tr.setId(obj.getInt("id"));
             tr.setTanggal(new Date(obj.getLong("tanggal")));
             tr.setDeskripsi(obj.getString("deskripsi"));
             tr.setNilai(obj.getDouble("nilai"));
