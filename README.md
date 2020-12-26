@@ -1,4 +1,4 @@
-## Catatan Kas | Shared preference
+## Catatan Kas | SQLite & Room
 
 Contoh cara penggunaan Database SQLite dan Room untuk menyimpan data sederhana pada aplikasi android pencatat transaksi/uang keluar masuk
 
