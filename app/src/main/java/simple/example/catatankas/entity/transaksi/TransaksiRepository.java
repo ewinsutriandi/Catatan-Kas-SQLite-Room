@@ -7,12 +7,14 @@ import androidx.lifecycle.LiveData;
 
 import java.util.List;
 
+import simple.example.catatankas.RoomDatabase;
+
 public class TransaksiRepository {
     private TransaksiDAO transaksiDAO;
     private LiveData<List<Transaksi>> transaksiList;
 
-    TransaksiRepository(Application application) {
-        TransaksiDatabase db = TransaksiDatabase.getDatabase(application);
+    public TransaksiRepository(Application application) {
+        RoomDatabase db = RoomDatabase.getDatabase(application);
         Log.d("TR REPO","Get database "+db);
         transaksiDAO = db.transaksiDAO();
         transaksiList = transaksiDAO.getAll();
@@ -23,7 +25,7 @@ public class TransaksiRepository {
     }
 
     void insert(Transaksi transaksi) {
-        TransaksiDatabase.databaseWriteExecutor.execute(() -> {
+        RoomDatabase.databaseWriteExecutor.execute(() -> {
             transaksiDAO.insertTransaksi(transaksi);
         });
     }
