@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
+import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import java.util.Date;
@@ -16,7 +17,7 @@ import simple.example.catatankas.entity.transaksi.Transaksi;
 import simple.example.catatankas.entity.transaksi.TransaksiDAO;
 
 @Database(entities = {Transaksi.class},exportSchema = false,version = 1)
-public abstract class AppDatabase extends androidx.room.RoomDatabase {
+public abstract class AppDatabase extends RoomDatabase {
     private final static String DB_NAME="tr_db";
     public abstract TransaksiDAO transaksiDAO();
 
@@ -43,7 +44,7 @@ public abstract class AppDatabase extends androidx.room.RoomDatabase {
         return INSTANCE;
     }
 
-    private static androidx.room.RoomDatabase.Callback sRoomDatabaseCallback = new androidx.room.RoomDatabase.Callback() {
+    private static Callback sRoomDatabaseCallback = new Callback() {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             Log.d("DB","create callback called");
